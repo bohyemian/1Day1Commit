@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>input value change</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Anton&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Black+Han+Sans&display=swap');
+        *{margin:0;padding:0;}
+        .inputArea{max-width:414px;margin:auto;margin-top:15vw;padding:50px 20px;text-align:center;}
+        .btn_area{visibility:hidden;margin-top:10px;font-size:0;}
+        .btn_area button{display:inline-block;padding:8px 15px;border:none;color:#fff;font-size:.75rem;background-color:#3b1e1e;-webkit-appearance:none;appearance:none;outline:none;}
+        .btn_area button+button{margin-left:1px;}
+        .btn_area button:hover{cursor:pointer;}
+        input[type=tel]{position:absolute;top:-999999999px;left:-999999999px;}
+        input[type=tel]+label{display:block;width:100%;min-height:3.875rem;padding:15px 20px;border:none;color:#e8e8e8;font-family:'Anton', sans-serif;font-size:2rem;font-weight:900;line-height:1;letter-spacing:-.1em;background-color:#fff;cursor:text;box-sizing:border-box;user-select:none;}
+        input[type=tel].focus_in~.btn_area{visibility:visible;}
+        input[type=tel].has_value+label{color:#3b1e1e;letter-spacing:.2em;}
+        input[type=tel].has_value+label:after{display:inline-block;position:relative;top:4px;font-family:'Black Han Sans', sans-serif;font-weight:normal;vertical-align:top;content:'원';}
+        input[type=tel].over+label{color:#f73333;}
+        input[type=tel].over+label:after{color:#3b1e1e;}
+    </style>
+</head>
+<body>
+    <div class="inputArea">
+        <input type="tel" id="amount">
+        <label for="amount">보낼금액</label>
+        <div class="btn_area">
+            <button type="button" data-add="10000">+ 만원</button>
+            <button type="button" data-add="50000">+ 5만원</button>
+            <button type="button" data-add="100000">+ 10만원</button>
+        </div>
+    </div>
+<script>
+    $(function(){
+        var $inputAmout = $('input#amount');
+        var amountValue = 0;
+        var $labelBox = $inputAmout.next('label');
+        let balance = 1200000; //잔고
+
+        $inputAmout.on({
+            'focusin': function() {
+                var $input = $(this);
+
+                $input.addClass('focus_in');
+                $('.inputArea').on('mouseleave', function() {
+                    $inputAmout.hasClass('focus_in') ? $inputAmout.removeClass('focus_in') : false;
+                });
+            },
+            'input change': function() {
+                var $input = $(this);
+                amountValue = Number($input.val());
+
+                $labelBox.text(String(amountValue).replace(/(\d)(?=(?:\d{3})+(?!\d))/g, '$1,'));
+
+                if (amountValue.length === 0 || amountValue <= 0 || amountValue === null) {
+                    $input.removeClass('has_value');
+                    $labelBox.text('보낼금액');
+                } else {
+                    $input.addClass('has_value');
+                    checkOver();
+                }
+            }
+        });
+        $('button').on('click', function() {
+            var btnValue = Number($(this).data('add'));
+
+            amountValue = Number(amountValue) + btnValue;
+            $inputAmout.focus().val(amountValue).addClass('has_value');
+            $labelBox.text(String(amountValue).replace(/(\d)(?=(?:\d{3})+(?!\d))/g, '$1,'));
+            checkOver();
+        });
+        //입력금액과 잔고 비교
+        var checkOver = function() {
+            amountValue > balance ? $inputAmout.addClass('over') : $inputAmout.removeClass('over');
+        }
+    });
+</script>
+</body>
+</html>
